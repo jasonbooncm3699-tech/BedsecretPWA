@@ -26,6 +26,8 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const items = navItems(locale);
 
+  const closeMobileNav = () => setMobileNavOpen(false);
+
   useEffect(() => {
     if (!mobileNavOpen) return;
     const originalOverflow = document.body.style.overflow;
@@ -45,6 +47,7 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border"
             aria-label={mobileNavOpen ? "Close navigation" : "Open navigation"}
             aria-expanded={mobileNavOpen}
+            data-testid="mobile-menu-toggle"
           >
             {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
@@ -90,7 +93,7 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
         <button
           type="button"
           aria-label="Close menu"
-          onClick={() => setMobileNavOpen(false)}
+          onClick={closeMobileNav}
           className={`absolute inset-0 bg-black/35 transition ${
             mobileNavOpen ? "opacity-100" : "opacity-0"
           }`}
@@ -104,7 +107,7 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
             <p className="text-lg font-semibold tracking-tight">Bedsecret</p>
             <button
               type="button"
-              onClick={() => setMobileNavOpen(false)}
+              onClick={closeMobileNav}
               className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border"
               aria-label="Close navigation"
             >
@@ -117,7 +120,7 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
                 key={item.href}
                 href={item.href}
                 className="rounded-xl px-3 py-2.5 text-sm font-medium text-foreground/85 hover:bg-muted hover:text-foreground"
-                onClick={() => setMobileNavOpen(false)}
+                onClick={closeMobileNav}
               >
                 {item.label}
               </Link>
@@ -125,7 +128,7 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
             <Link
               href={`/${locale}/rewards`}
               className="rounded-xl px-3 py-2.5 text-sm font-medium text-foreground/85 hover:bg-muted hover:text-foreground"
-              onClick={() => setMobileNavOpen(false)}
+              onClick={closeMobileNav}
             >
               {text.common.referralRewards}
             </Link>
