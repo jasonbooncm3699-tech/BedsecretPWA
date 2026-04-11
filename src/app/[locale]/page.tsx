@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { HomeHero } from "@/components/home-hero";
-import { ProductCard } from "@/components/product-card";
+import { ProductCarousel } from "@/components/product-carousel";
 import { ReviewCard } from "@/components/review-card";
 import { products, reviews } from "@/lib/data";
 import { getDictionary, isSupportedLocale } from "@/lib/i18n";
@@ -23,20 +23,7 @@ export default async function LocaleHomePage({ params }: LocalePageProps) {
       <HomeHero locale={locale} t={t} />
 
       <section className="space-y-4">
-        <div className="flex items-end justify-between">
-          <h2 className="text-2xl font-semibold">{t.home.featuredProducts}</h2>
-          <Link
-            href={`/${locale}/products`}
-            className="text-sm font-semibold text-primary hover:text-primary-hover"
-          >
-            {t.nav.products}
-          </Link>
-        </div>
-        <div className="grid gap-4 md:grid-cols-3">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} locale={locale} t={t} />
-          ))}
-        </div>
+        <ProductCarousel products={products} locale={locale} t={t} />
       </section>
 
       <section className="space-y-4">

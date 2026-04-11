@@ -13,7 +13,7 @@ export function HomeHero({ locale, t }: HomeHeroProps) {
       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
         {siteConfig.description}
       </p>
-      <h1 className="mt-4 max-w-3xl text-3xl font-semibold leading-tight tracking-tight md:text-5xl">
+      <h1 className="font-display mt-4 max-w-3xl text-3xl font-semibold leading-tight tracking-tight md:text-5xl">
         {t.home.heroTitle}
       </h1>
       <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">

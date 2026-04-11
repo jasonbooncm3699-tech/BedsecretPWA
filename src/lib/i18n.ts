@@ -14,6 +14,7 @@ export type TranslationDictionary = {
     joinMember: string;
     orderViaWhatsapp: string;
     viewDetails: string;
+    shopAll: string;
     referralRewards: string;
     socialProof: string;
   };
@@ -53,6 +54,7 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
       joinMember: "Join Member",
       orderViaWhatsapp: "Order via WhatsApp",
       viewDetails: "View details",
+      shopAll: "Shop All",
       referralRewards: "Referral & Rewards",
       socialProof: "Trusted Reviews",
     },
@@ -98,6 +100,7 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
       joinMember: "Sertai Ahli",
       orderViaWhatsapp: "Pesan di WhatsApp",
       viewDetails: "Lihat butiran",
+      shopAll: "Lihat Semua",
       referralRewards: "Rujukan & Ganjaran",
       socialProof: "Ulasan Dipercayai",
     },
@@ -143,6 +146,7 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
       joinMember: "สมัครสมาชิก",
       orderViaWhatsapp: "สั่งผ่าน WhatsApp",
       viewDetails: "ดูรายละเอียด",
+      shopAll: "ดูทั้งหมด",
       referralRewards: "แนะนำเพื่อน & รางวัล",
       socialProof: "รีวิวจากลูกค้า",
     },

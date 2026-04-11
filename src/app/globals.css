@@ -27,7 +27,7 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-manrope);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
@@ -47,7 +47,12 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, sans-serif;
+  font-family: var(--font-manrope), Arial, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.font-display {
+  font-family: var(--font-manrope), Arial, sans-serif;
   letter-spacing: -0.01em;
 }
 
