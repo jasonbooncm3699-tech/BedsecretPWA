@@ -5,7 +5,7 @@ import { Menu, X } from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { getDictionary, type Locale } from "@/lib/i18n";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const navItems = (locale: Locale) => {
   const text = getDictionary(locale);
@@ -25,6 +25,15 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
   const text = getDictionary(locale);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const items = navItems(locale);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [mobileNavOpen]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface">
