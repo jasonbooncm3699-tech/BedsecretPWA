@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FAQAccordion } from "@/components/faq-accordion";
 import { HomeHero } from "@/components/home-hero";
 import { ProductCarousel } from "@/components/product-carousel";
 import { ReviewCard } from "@/components/review-card";
-import { products, reviews } from "@/lib/data";
+import { faqItems, products, reviews } from "@/lib/data";
 import { getDictionary, isSupportedLocale } from "@/lib/i18n";
 
 type LocalePageProps = {
@@ -17,6 +18,11 @@ export default async function LocaleHomePage({ params }: LocalePageProps) {
   }
 
   const t = getDictionary(locale);
+  const homeFaqItems = faqItems.slice(0, 3).map((item) => ({
+    id: item.id,
+    question: item.question[locale],
+    answer: item.answer[locale],
+  }));
 
   return (
     <div className="space-y-8">
@@ -41,6 +47,20 @@ export default async function LocaleHomePage({ params }: LocalePageProps) {
             <ReviewCard key={review.id} review={review} locale={locale} />
           ))}
         </div>
+      </section>
+
+      <section className="space-y-4 rounded-3xl border border-border bg-surface p-6">
+        <div className="flex items-end justify-between gap-4">
+          <h3 className="text-2xl font-semibold">{t.faq.title}</h3>
+          <Link
+            href={`/${locale}/faq`}
+            className="text-sm font-semibold text-primary hover:text-primary-hover"
+          >
+            {t.nav.faq}
+          </Link>
+        </div>
+        <p className="text-sm text-muted-foreground">{t.faq.description}</p>
+        <FAQAccordion items={homeFaqItems} />
       </section>
 
       <section className="rounded-3xl border border-border bg-surface p-6">
