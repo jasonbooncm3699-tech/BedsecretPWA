@@ -1,21 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 
 const COOKIE_KEY = "bedsecret-cookie-consent";
 
+function subscribeToStorage(callback: () => void) {
+  const handler = () => callback();
+  window.addEventListener("storage", handler);
+  return () => window.removeEventListener("storage", handler);
+}
+
+function getClientSnapshot() {
+  return window.localStorage.getItem(COOKIE_KEY) ?? "unset";
+}
+
+function getServerSnapshot() {
+  return "unset";
+}
+
 export function CookieBanner() {
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-    const saved = window.localStorage.getItem(COOKIE_KEY);
-    return !saved;
-  });
+  const consent = useSyncExternalStore(
+    subscribeToStorage,
+    getClientSnapshot,
+    getServerSnapshot,
+  );
+  const visible = consent === "unset";
 
   const setConsent = (value: "accepted" | "rejected") => {
     window.localStorage.setItem(COOKIE_KEY, value);
-    setVisible(false);
+    window.dispatchEvent(new StorageEvent("storage", { key: COOKIE_KEY }));
   };
 
   if (!visible) {
