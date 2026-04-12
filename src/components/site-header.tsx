@@ -12,7 +12,6 @@ const navItems = (locale: Locale) => {
   return [
     { href: `/${locale}`, label: text.nav.home },
     { href: `/${locale}/products`, label: text.nav.products },
-    { href: `/${locale}/faq`, label: text.nav.faq },
     { href: `/${locale}/reviews`, label: text.nav.reviews },
     { href: `/${locale}/member`, label: text.nav.member },
   ];
