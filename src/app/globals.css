@@ -59,3 +59,14 @@ body {
 a {
   transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
+
+@keyframes faq-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

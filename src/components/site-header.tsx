@@ -12,6 +12,7 @@ const navItems = (locale: Locale) => {
   return [
     { href: `/${locale}`, label: text.nav.home },
     { href: `/${locale}/products`, label: text.nav.products },
+    { href: `/${locale}/faq`, label: text.nav.faq },
     { href: `/${locale}/reviews`, label: text.nav.reviews },
     { href: `/${locale}/member`, label: text.nav.member },
   ];
@@ -38,7 +39,7 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
   }, [mobileNavOpen]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-surface">
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-surface/95 backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:py-4">
         <div className="flex items-center gap-2 md:hidden">
           <button
@@ -53,12 +54,12 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
           </button>
         </div>
 
-        <nav className="hidden items-center gap-7 md:flex md:flex-1">
+        <nav className="hidden items-center gap-6 md:flex md:flex-1">
           {items.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-foreground/75 hover:text-foreground"
+              className="text-sm font-medium tracking-tight text-foreground/75 hover:text-foreground"
             >
               {item.label}
             </Link>
@@ -67,12 +68,12 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
 
         <Link
           href={`/${locale}`}
-          className="absolute left-1/2 -translate-x-1/2 text-xl font-semibold tracking-tight text-foreground md:static md:translate-x-0 md:text-2xl md:font-bold"
+          className="absolute left-1/2 -translate-x-1/2 text-xl font-semibold tracking-tight text-foreground md:static md:translate-x-0 md:text-[1.6rem] md:font-bold"
         >
           Bedsecret
         </Link>
 
-        <div className="flex items-center gap-2 md:flex-1 md:justify-end">
+        <div className="flex items-center gap-2.5 md:flex-1 md:justify-end">
           <div className="hidden md:block">
             <LanguageSwitcher currentLocale={locale} />
           </div>

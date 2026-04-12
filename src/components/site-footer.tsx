@@ -50,6 +50,9 @@ export function SiteFooter({ locale, t }: SiteFooterProps) {
           ))}
         </div>
         <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+          <Link href={`/${locale}/faq`} className="hover:text-foreground">
+            {t.legal.faq}
+          </Link>
           <Link href={`/${locale}/privacy`} className="hover:text-foreground">
             {t.legal.privacy}
           </Link>

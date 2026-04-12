@@ -16,9 +16,14 @@ export default async function ReturnsPage({ params }: ReturnsPageProps) {
   const content = getLegalContent(locale, "returns");
 
   return (
-    <section className="mx-auto w-full max-w-3xl space-y-4 rounded-3xl border border-border bg-surface p-6">
-      <h1 className="text-2xl font-semibold text-foreground">{t.legal.returns}</h1>
-      <p className="text-sm leading-7 text-muted-foreground">{content}</p>
+    <section className="mx-auto w-full max-w-4xl space-y-6 rounded-[2rem] border border-border/70 bg-surface p-7 shadow-[0_18px_45px_rgba(46,37,48,0.06)] md:p-10">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+        Legal
+      </p>
+      <h1 className="font-display text-3xl font-semibold leading-tight md:text-4xl">
+        {t.legal.returns}
+      </h1>
+      <p className="text-[15px] leading-8 text-muted-foreground">{content}</p>
     </section>
   );
 }

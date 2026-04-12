@@ -51,7 +51,7 @@ export function ProductCarousel({
         <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
           {t.home.featuredProducts}
         </h2>
-        <div className="hidden items-center gap-2 sm:flex">
+        <div className="hidden items-center gap-2 md:flex">
           <button
             type="button"
             onClick={() => scrollByCard("left")}
@@ -87,7 +87,7 @@ export function ProductCarousel({
           ))}
         </div>
         {canScrollRight ? (
-          <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-16 items-center justify-end bg-gradient-to-l from-background to-transparent sm:flex">
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex w-16 items-center justify-end bg-gradient-to-l from-background to-transparent">
             <ChevronRight className="mr-1 h-6 w-6 text-foreground/70" />
           </div>
         ) : null}

@@ -153,6 +153,67 @@ const legalContentByLocale: Record<Locale, Record<LegalDocumentKey, string>> = {
   },
 };
 
+export type FaqItem = {
+  id: string;
+  question: Record<Locale, string>;
+  answer: Record<Locale, string>;
+};
+
+export const faqItems: FaqItem[] = [
+  {
+    id: "faq-1",
+    question: {
+      en: "How do I order products from Bedsecret?",
+      ms: "Bagaimana saya membuat pesanan produk Bedsecret?",
+      th: "ฉันจะสั่งซื้อสินค้าจาก Bedsecret ได้อย่างไร",
+    },
+    answer: {
+      en: "Browse products, open the product details, then tap Order via WhatsApp. Our sales team will continue your order in WhatsApp chat.",
+      ms: "Lihat produk, buka halaman produk, kemudian tekan Pesan di WhatsApp. Pasukan jualan kami akan sambung proses pesanan melalui chat WhatsApp.",
+      th: "เลือกดูสินค้า เปิดหน้ารายละเอียดสินค้า แล้วกดสั่งผ่าน WhatsApp ทีมขายจะช่วยดำเนินการต่อในแชต WhatsApp",
+    },
+  },
+  {
+    id: "faq-2",
+    question: {
+      en: "How does referral reward work?",
+      ms: "Bagaimana ganjaran rujukan berfungsi?",
+      th: "ระบบรางวัลแนะนำเพื่อนทำงานอย่างไร",
+    },
+    answer: {
+      en: "Each member has a unique referral code. When your friend signs up and completes a purchase, admin validates it and your voucher becomes claimable.",
+      ms: "Setiap ahli mempunyai kod rujukan unik. Apabila rakan anda mendaftar dan membuat pembelian, admin akan sahkan dan baucar anda boleh dituntut.",
+      th: "สมาชิกแต่ละคนมีโค้ดแนะนำเฉพาะตัว เมื่อเพื่อนสมัครและซื้อสินค้า แอดมินจะยืนยันแล้วคูปองของคุณจะพร้อมให้รับ",
+    },
+  },
+  {
+    id: "faq-3",
+    question: {
+      en: "Can I browse without becoming a member?",
+      ms: "Boleh saya melayari tanpa menjadi ahli?",
+      th: "สามารถเข้าชมเว็บไซต์โดยไม่สมัครสมาชิกได้ไหม",
+    },
+    answer: {
+      en: "Yes. Product and review pages are public. Membership is needed for rewards, referrals, and member campaigns.",
+      ms: "Ya. Halaman produk dan ulasan adalah terbuka. Keahlian diperlukan untuk ganjaran, rujukan, dan kempen khas ahli.",
+      th: "ได้ หน้าสินค้าและรีวิวเปิดให้ทุกคนดู แต่สมาชิกจะใช้ฟีเจอร์รางวัล การแนะนำเพื่อน และแคมเปญพิเศษได้",
+    },
+  },
+  {
+    id: "faq-4",
+    question: {
+      en: "How long is a claimed voucher valid?",
+      ms: "Berapa lama tempoh sah baucar yang dituntut?",
+      th: "คูปองที่รับแล้วใช้ได้กี่วัน",
+    },
+    answer: {
+      en: "Claimed vouchers are currently valid for 60 days from issue date.",
+      ms: "Baucar yang dituntut kini sah selama 60 hari dari tarikh dikeluarkan.",
+      th: "คูปองที่รับแล้วมีอายุใช้งาน 60 วันนับจากวันที่ออก",
+    },
+  },
+];
+
 export type ReferralRewardStatus = {
   referralCode: string;
   successfulPurchases: number;

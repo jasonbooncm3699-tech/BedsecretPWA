@@ -9,6 +9,7 @@ export type TranslationDictionary = {
     products: string;
     reviews: string;
     member: string;
+    faq: string;
   };
   common: {
     joinMember: string;
@@ -25,6 +26,10 @@ export type TranslationDictionary = {
     whyJoinTitle: string;
     whyJoinDescription: string;
   };
+  faq: {
+    title: string;
+    description: string;
+  };
   member: {
     title: string;
     description: string;
@@ -39,6 +44,7 @@ export type TranslationDictionary = {
     terms: string;
     returns: string;
     cookie: string;
+    faq: string;
   };
 };
 
@@ -49,6 +55,7 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
       products: "Products",
       reviews: "Reviews",
       member: "Member",
+      faq: "FAQ",
     },
     common: {
       joinMember: "Join Member",
@@ -67,6 +74,11 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
       whyJoinDescription:
         "Register once to collect rewards, track referrals, and receive exclusive restock offers.",
     },
+    faq: {
+      title: "Frequently Asked Questions",
+      description:
+        "Quick answers about ordering, membership, referrals, and vouchers.",
+    },
     member: {
       title: "Member Access",
       description:
@@ -83,10 +95,11 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
       claim: "Claim voucher",
     },
     legal: {
-      privacy: "Privacy",
-      terms: "Terms",
+      privacy: "Privacy Policy",
+      terms: "Terms & Conditions",
       returns: "Returns",
-      cookie: "Cookie",
+      cookie: "Cookie Policy",
+      faq: "FAQ",
     },
   },
   ms: {
@@ -95,6 +108,7 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
       products: "Produk",
       reviews: "Ulasan",
       member: "Ahli",
+      faq: "Soalan Lazim",
     },
     common: {
       joinMember: "Sertai Ahli",
@@ -113,6 +127,11 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
       whyJoinDescription:
         "Daftar sekali untuk kumpul ganjaran, jejak rujukan, dan dapatkan tawaran restock eksklusif.",
     },
+    faq: {
+      title: "Soalan Lazim",
+      description:
+        "Jawapan ringkas mengenai pesanan, keahlian, rujukan, dan baucar.",
+    },
     member: {
       title: "Akses Ahli",
       description:
@@ -129,10 +148,11 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
       claim: "Tuntut baucar",
     },
     legal: {
-      privacy: "Privasi",
-      terms: "Terma",
+      privacy: "Dasar Privasi",
+      terms: "Terma & Syarat",
       returns: "Pemulangan",
-      cookie: "Kuki",
+      cookie: "Dasar Kuki",
+      faq: "Soalan Lazim",
     },
   },
   th: {
@@ -141,6 +161,7 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
       products: "สินค้า",
       reviews: "รีวิว",
       member: "สมาชิก",
+      faq: "คำถามที่พบบ่อย",
     },
     common: {
       joinMember: "สมัครสมาชิก",
@@ -159,6 +180,11 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
       whyJoinDescription:
         "สมัครครั้งเดียวเพื่อสะสมรางวัล ติดตามการแนะนำเพื่อน และรับแจ้งเตือนสินค้าเข้าใหม่",
     },
+    faq: {
+      title: "คำถามที่พบบ่อย",
+      description:
+        "คำตอบสั้นๆ เกี่ยวกับการสั่งซื้อ สมาชิก การแนะนำเพื่อน และคูปอง",
+    },
     member: {
       title: "สิทธิ์สมาชิก",
       description:
@@ -175,10 +201,11 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
       claim: "รับคูปอง",
     },
     legal: {
-      privacy: "ความเป็นส่วนตัว",
-      terms: "ข้อกำหนด",
+      privacy: "นโยบายความเป็นส่วนตัว",
+      terms: "ข้อกำหนดและเงื่อนไข",
       returns: "การคืนสินค้า",
-      cookie: "คุกกี้",
+      cookie: "นโยบายคุกกี้",
+      faq: "คำถามที่พบบ่อย",
     },
   },
 };
