@@ -95,10 +95,10 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
       claim: "Claim voucher",
     },
     legal: {
-      privacy: "Privacy Policy",
+      privacy: "Privacy",
       terms: "Terms & Conditions",
       returns: "Returns",
-      cookie: "Cookie Policy",
+      cookie: "Cookies",
       faq: "FAQ",
     },
   },
