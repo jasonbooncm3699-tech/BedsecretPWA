@@ -91,6 +91,16 @@ export function ProductCarousel({
             <ChevronRight className="mr-1 h-6 w-6 text-foreground/70" />
           </div>
         ) : null}
+        {canScrollRight ? (
+          <button
+            type="button"
+            onClick={() => scrollByCard("right")}
+            className="absolute right-2 top-1/2 z-10 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-surface/95 text-foreground shadow md:hidden"
+            aria-label="Show more products"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        ) : null}
       </div>
       <div className="flex justify-center pt-1">
         <a
