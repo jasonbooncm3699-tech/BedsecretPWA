@@ -13,6 +13,9 @@ export type TranslationDictionary = {
   };
   common: {
     joinMember: string;
+    continueWithGoogle: string;
+    continueWithFacebook: string;
+    continueWithEmail: string;
     orderViaWhatsapp: string;
     viewDetails: string;
     shopAll: string;
@@ -59,6 +62,9 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
     },
     common: {
       joinMember: "Join Member",
+      continueWithGoogle: "Continue with Google",
+      continueWithFacebook: "Continue with Facebook",
+      continueWithEmail: "Continue with Email",
       orderViaWhatsapp: "Order via WhatsApp",
       viewDetails: "View details",
       shopAll: "Shop All",
@@ -112,6 +118,9 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
     },
     common: {
       joinMember: "Sertai Ahli",
+      continueWithGoogle: "Teruskan dengan Google",
+      continueWithFacebook: "Teruskan dengan Facebook",
+      continueWithEmail: "Teruskan dengan E-mel",
       orderViaWhatsapp: "Pesan di WhatsApp",
       viewDetails: "Lihat butiran",
       shopAll: "Lihat Semua",
@@ -165,6 +174,9 @@ const dictionaries: Record<Locale, TranslationDictionary> = {
     },
     common: {
       joinMember: "สมัครสมาชิก",
+      continueWithGoogle: "ดำเนินการต่อด้วย Google",
+      continueWithFacebook: "ดำเนินการต่อด้วย Facebook",
+      continueWithEmail: "ดำเนินการต่อด้วยอีเมล",
       orderViaWhatsapp: "สั่งผ่าน WhatsApp",
       viewDetails: "ดูรายละเอียด",
       shopAll: "ดูทั้งหมด",

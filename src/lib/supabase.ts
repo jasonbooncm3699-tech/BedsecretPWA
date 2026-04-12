@@ -10,3 +10,7 @@ export function getSupabaseClient() {
 
   return createClient(supabaseUrl, supabaseAnonKey);
 }
+
+export function isSupabaseConfigured() {
+  return Boolean(supabaseUrl && supabaseAnonKey);
+}

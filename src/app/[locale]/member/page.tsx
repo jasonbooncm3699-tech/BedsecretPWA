@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { AuthCard } from "@/components/auth-card";
 import { getDictionary, isSupportedLocale, type Locale } from "@/lib/i18n";
-import { MemberSignupForm } from "@/components/member-signup-form";
 
 type MemberPageProps = {
   params: Promise<{ locale: string }>;
@@ -39,7 +39,7 @@ export default async function MemberPage(props: MemberPageProps) {
         </div>
       </section>
 
-      <MemberSignupForm locale={locale} />
+      <AuthCard locale={locale} />
     </div>
   );
 }
