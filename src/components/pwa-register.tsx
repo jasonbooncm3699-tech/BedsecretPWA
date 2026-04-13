@@ -69,7 +69,7 @@ export function PwaRegister() {
       applyWaitingWorker(registration);
     };
 
-    let updateIntervalId: ReturnType<typeof window.setInterval> | null = null;
+    let updateIntervalId: number | null = null;
     let activeRegistration: ServiceWorkerRegistration | null = null;
 
     navigator.serviceWorker
