@@ -1,0 +1,115 @@
+"use client";
+
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ProductCard } from "@/components/product-card";
+import type { Product } from "@/lib/data";
+import type { Locale, TranslationDictionary } from "@/lib/i18n";
+
+type ProductCarouselProps = {
+  products: Product[];
+  locale: Locale;
+  t: TranslationDictionary;
+};
+
+export function ProductCarousel({
+  products,
+  locale,
+  t,
+}: ProductCarouselProps) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const slides = useMemo(() => products, [products]);
+
+  const updateScrollHint = () => {
+    const track = trackRef.current;
+    if (!track) return;
+    const remaining = track.scrollWidth - (track.scrollLeft + track.clientWidth);
+    setCanScrollRight(remaining > 8);
+  };
+
+  const scrollByCard = (direction: "left" | "right") => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const amount = Math.max(track.clientWidth * 0.8, 280);
+    track.scrollBy({
+      left: direction === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
+    window.requestAnimationFrame(updateScrollHint);
+  };
+
+  useEffect(() => {
+    updateScrollHint();
+  }, []);
+
+  return (
+    <section className="space-y-5">
+      <div className="flex items-end justify-between gap-4">
+        <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
+          {t.home.featuredProducts}
+        </h2>
+        <div className="hidden items-center gap-2 md:flex">
+          <button
+            type="button"
+            onClick={() => scrollByCard("left")}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface hover:bg-muted"
+            aria-label="Scroll products left"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollByCard("right")}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface hover:bg-muted"
+            aria-label="Scroll products right"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="relative">
+        <div
+          ref={trackRef}
+          onScroll={updateScrollHint}
+          className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {slides.map((product) => (
+            <div
+              key={product.id}
+              className="min-w-[78%] flex-none snap-start sm:min-w-[48%] lg:min-w-[35%]"
+            >
+              <ProductCard product={product} locale={locale} t={t} />
+            </div>
+          ))}
+        </div>
+        {canScrollRight ? (
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex w-16 items-center justify-end bg-gradient-to-l from-background to-transparent">
+            <ChevronRight className="mr-1 h-6 w-6 text-foreground/70" />
+          </div>
+        ) : null}
+        {canScrollRight ? (
+          <button
+            type="button"
+            onClick={() => scrollByCard("right")}
+            className="absolute right-2 top-1/2 z-10 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-surface/95 text-foreground shadow md:hidden"
+            aria-label="Show more products"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        ) : null}
+      </div>
+      <div className="flex justify-center pt-1">
+        <a
+          href={`/${locale}/products`}
+          className="rounded-full bg-foreground px-7 py-3 text-sm font-semibold text-background hover:opacity-90"
+        >
+          {t.common.shopAll}
+        </a>
+      </div>
+    </section>
+  );
+}
