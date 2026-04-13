@@ -37,6 +37,7 @@ export type MemberProfileFormInput = {
 export type SessionMember = {
   id: string;
   email: string | null;
+  phone: string | null;
 };
 
 export type RewardSnapshot = {
@@ -45,12 +46,22 @@ export type RewardSnapshot = {
   pendingReferrals: number;
   claimableValue: number;
   expiryDays: number;
+  profile: MemberProfile;
   activeVoucher: {
     code: string;
     amount: number;
     expiresAt: string;
   } | null;
 };
+
+export function hasRequiredMemberDetails(profile: MemberProfile): boolean {
+  return Boolean(
+    profile.full_name?.trim() &&
+      profile.email?.trim() &&
+      profile.phone?.trim() &&
+      profile.date_of_birth?.trim(),
+  );
+}
 
 function toWholeNumber(value: number | null | undefined, fallback: number): number {
   if (typeof value !== "number" || Number.isNaN(value)) {
@@ -197,13 +208,15 @@ export async function bootstrapMemberProfile(
 ): Promise<MemberProfile | null> {
   const existingProfile = await getMemberProfile(supabase, user.id);
   if (existingProfile) {
+    const updatePayload: { email?: string | null; phone?: string | null } = {};
     if (!existingProfile.email && user.email) {
-      await supabase
-        .from("member_profiles")
-        .update({
-          email: user.email,
-        })
-        .eq("id", user.id);
+      updatePayload.email = user.email;
+    }
+    if (!existingProfile.phone && user.phone) {
+      updatePayload.phone = user.phone;
+    }
+    if (Object.keys(updatePayload).length > 0) {
+      await supabase.from("member_profiles").update(updatePayload).eq("id", user.id);
     }
 
     if (!existingProfile.referred_by && referralCode) {
@@ -234,6 +247,7 @@ export async function bootstrapMemberProfile(
     const { error } = await supabase.from("member_profiles").insert({
       id: user.id,
       email: user.email ?? null,
+      phone: user.phone ?? null,
       referral_code: assignedReferralCode,
       referred_by: safeReferrer,
     });
@@ -392,6 +406,7 @@ export async function fetchRewardSnapshot(
       vouchers,
     ),
     expiryDays: settings.voucherExpiryDays,
+    profile,
     activeVoucher: findActiveVoucher(vouchers),
   };
 }
@@ -408,7 +423,11 @@ export type ClaimVoucherResult =
     }
   | {
       ok: false;
-      reason: "profile_missing" | "no_claimable" | "insert_failed";
+      reason:
+        | "profile_missing"
+        | "profile_incomplete"
+        | "no_claimable"
+        | "insert_failed";
     };
 
 export async function claimVoucher(
@@ -421,6 +440,13 @@ export async function claimVoucher(
     return {
       ok: false,
       reason: "profile_missing",
+    };
+  }
+
+  if (!hasRequiredMemberDetails(snapshot.profile)) {
+    return {
+      ok: false,
+      reason: "profile_incomplete",
     };
   }
 

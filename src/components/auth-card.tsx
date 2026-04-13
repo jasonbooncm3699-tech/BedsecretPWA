@@ -186,12 +186,6 @@ export function AuthCard({ locale }: AuthCardProps) {
         setSessionUserId(null);
         setSessionEmail(null);
         setProfile(null);
-        setProfileForm({
-          fullName: "",
-          phone: "",
-          dateOfBirth: "",
-          email: "",
-        });
         return;
       }
 
@@ -205,20 +199,10 @@ export function AuthCard({ locale }: AuthCardProps) {
 
       if (!bootstrapProfile) {
         setProfile(null);
-        setProfileForm((current) => ({
-          ...current,
-          email: user.email ?? current.email,
-        }));
         return;
       }
 
       setProfile(bootstrapProfile);
-      setProfileForm({
-        fullName: bootstrapProfile.full_name ?? "",
-        phone: bootstrapProfile.phone ?? "",
-        dateOfBirth: bootstrapProfile.date_of_birth ?? "",
-        email: bootstrapProfile.email ?? user.email ?? "",
-      });
     };
 
     supabase.auth
@@ -229,7 +213,13 @@ export function AuthCard({ locale }: AuthCardProps) {
           return;
         }
         return applyProfileState(
-          data.user ? { id: data.user.id, email: data.user.email ?? null } : null,
+          data.user
+            ? {
+                id: data.user.id,
+                email: data.user.email ?? null,
+                phone: data.user.phone ?? null,
+              }
+            : null,
         );
       })
       .finally(() => {
@@ -240,7 +230,13 @@ export function AuthCard({ locale }: AuthCardProps) {
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       void applyProfileState(
-        session?.user ? { id: session.user.id, email: session.user.email ?? null } : null,
+        session?.user
+          ? {
+              id: session.user.id,
+              email: session.user.email ?? null,
+              phone: session.user.phone ?? null,
+            }
+          : null,
       );
       setHydrating(false);
     });

@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { Locale, TranslationDictionary } from "@/lib/i18n";
 import { RewardSummaryCard } from "@/components/reward-summary-card";
-import { fetchRewardSnapshot, type RewardSnapshot } from "@/lib/rewards";
+import {
+  fetchRewardSnapshot,
+  hasRequiredMemberDetails,
+  type RewardSnapshot,
+} from "@/lib/rewards";
 import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 import { RewardClaimCard } from "@/components/reward-claim-card";
 
@@ -57,6 +61,12 @@ export function RewardsDashboard({ locale, t, mode = "summary" }: RewardsDashboa
       }
 
       if (!rewardsSnapshot) {
+        setMissingProfile(true);
+        setLoading(false);
+        return;
+      }
+
+      if (!hasRequiredMemberDetails(rewardsSnapshot.profile)) {
         setMissingProfile(true);
         setLoading(false);
         return;

@@ -81,6 +81,8 @@ export function RewardClaimCard({ locale, t }: RewardClaimCardProps) {
       const messageByReason: Record<typeof result.reason, string> = {
         profile_missing:
           "Member profile not found yet. Please complete your profile in Member page first.",
+        profile_incomplete:
+          "Please complete full name, phone, and DOB in Member page before claiming rewards.",
         no_claimable:
           "No claimable amount available yet. Referral rewards will appear after admin confirms purchases.",
         insert_failed: "Unable to issue voucher now. Please try again in a moment.",
