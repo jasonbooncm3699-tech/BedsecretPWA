@@ -49,6 +49,8 @@ Responsive multilingual skincare PWA for Bedsecret, built with Next.js App Route
 - Deploy on Vercel
 - Connect custom domain `bedsecret.com` from GoDaddy DNS
 - Ensure environment variables are configured in Vercel project settings
+- PWA service worker is configured in **network-first/no runtime cache** mode to avoid
+  stale UI after new deployments.
 
 ## Supabase Phase 2 setup (Auth + Referral + Rewards)
 
