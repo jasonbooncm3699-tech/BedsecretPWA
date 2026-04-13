@@ -28,7 +28,11 @@ export function PwaRegister() {
       return;
     }
 
-    navigator.serviceWorker.register("/sw.js").catch(() => {
+    navigator.serviceWorker.register("/sw.js").then((registration) => {
+      registration.update().catch(() => {
+        // no-op
+      });
+    }).catch(() => {
       // Keep silent in UI, registration failure should not break rendering.
     });
   }, []);

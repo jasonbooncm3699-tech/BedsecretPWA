@@ -38,7 +38,7 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
   }, [mobileNavOpen]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/80 bg-surface/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-surface md:bg-surface/95 md:backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:py-4">
         <div className="flex items-center gap-2 md:hidden">
           <button
@@ -99,10 +99,14 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
           }`}
         />
         <aside
-          className={`absolute left-0 top-0 z-10 h-full w-[84%] max-w-xs border-r border-border bg-[#fff9fb] p-5 shadow-xl backdrop-blur-none transition-transform duration-200 dark:bg-[#1a1c23] ${
+          className={`absolute left-0 top-0 z-20 h-full w-[84%] max-w-xs border-r border-border p-5 shadow-xl backdrop-blur-none transition-transform duration-200 ${
             mobileNavOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 -z-10 bg-[#fff9fb] dark:bg-[#1a1c23]"
+          />
           <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
             <p className="text-lg font-semibold tracking-tight">Bedsecret</p>
             <button
