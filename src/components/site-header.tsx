@@ -99,8 +99,7 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
           }`}
         />
         <aside
-          style={{ backgroundColor: "var(--surface)" }}
-          className={`absolute left-0 top-0 h-full w-[84%] max-w-xs border-r border-border bg-surface p-5 shadow-xl transition-transform duration-200 ${
+          className={`absolute left-0 top-0 z-10 h-full w-[84%] max-w-xs border-r border-border bg-[#fff9fb] p-5 shadow-xl backdrop-blur-none transition-transform duration-200 dark:bg-[#1a1c23] ${
             mobileNavOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
