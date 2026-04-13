@@ -28,8 +28,9 @@ export function PwaRegister() {
       return;
     }
 
+    const swVersion = process.env.NEXT_PUBLIC_SW_VERSION?.trim() || "1";
     navigator.serviceWorker
-      .register("/sw.js")
+      .register(`/sw.js?v=${encodeURIComponent(swVersion)}`)
       .then((registration) => {
         registration.update().catch(() => {
           // no-op
