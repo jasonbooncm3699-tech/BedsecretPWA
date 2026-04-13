@@ -148,10 +148,10 @@ export function RewardsDashboard({ locale, t, mode = "summary" }: RewardsDashboa
           Complete your member profile first, then refresh this page to load your rewards.
         </p>
         <Link
-          href={`/${locale}/member`}
+          href={`/${locale}/login/complete`}
           className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
         >
-          {t.nav.member}
+          Complete Registration
         </Link>
       </section>
     );

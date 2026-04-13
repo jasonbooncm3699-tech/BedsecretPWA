@@ -4,7 +4,16 @@ import { products } from "@/lib/data";
 import { SUPPORTED_LOCALES } from "@/lib/i18n";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const localizedBasePaths = ["", "/products", "/reviews", "/member", "/login", "/rewards"];
+  const localizedBasePaths = [
+    "",
+    "/products",
+    "/reviews",
+    "/member",
+    "/login",
+    "/login/verify",
+    "/login/complete",
+    "/rewards",
+  ];
 
   const staticUrls = SUPPORTED_LOCALES.flatMap((locale) =>
     localizedBasePaths.map((path) => ({

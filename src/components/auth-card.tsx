@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { getSupabaseClient } from "@/lib/supabase";
 import type { Locale } from "@/lib/i18n";
 import {
   bootstrapMemberProfile,
-  hasRequiredMemberDetails,
   saveMemberProfileForm,
   type MemberProfile,
   type MemberProfileFormInput,
@@ -16,29 +15,23 @@ import {
 
 type AuthCardProps = {
   locale: Locale;
+  mode?: "start" | "complete";
 };
 
 type AuthLabels = {
-  title: string;
-  subtitle: string;
+  startTitle: string;
+  startSubtitle: string;
+  completeTitle: string;
+  completeSubtitle: string;
   phoneLabel: string;
   phonePlaceholder: string;
   phoneSendButton: string;
-  otpLabel: string;
-  otpPlaceholder: string;
-  otpVerifyButton: string;
-  otpSent: string;
-  otpVerified: string;
+  orText: string;
   emailLabel: string;
   emailPlaceholder: string;
-  emailButton: string;
+  emailSendButton: string;
+  phoneSent: string;
   emailSent: string;
-  profileTitle: string;
-  profileNotePhone: string;
-  profileNoteEmail: string;
-  profileNoteFallback: string;
-  phoneLockedHint: string;
-  emailLockedHint: string;
   profileButton: string;
   profileSaved: string;
   profileRequired: string;
@@ -47,152 +40,117 @@ type AuthLabels = {
   signedInAs: string;
   signOut: string;
   loadingMember: string;
+  phoneLockedHint: string;
+  emailLockedHint: string;
+  fullNamePlaceholder: string;
+  dobLabel: string;
   missingConfig: string;
-};
-
-const profilePlaceholdersByLocale: Record<
-  Locale,
-  { fullName: string; phone: string; email: string; referralCode: string; memberFallback: string }
-> = {
-  en: {
-    fullName: "Full name",
-    phone: "Phone",
-    email: "Email",
-    referralCode: "Referral code",
-    memberFallback: "member",
-  },
-  ms: {
-    fullName: "Nama penuh",
-    phone: "Nombor telefon",
-    email: "E-mel",
-    referralCode: "Kod rujukan",
-    memberFallback: "ahli",
-  },
-  th: {
-    fullName: "ชื่อเต็ม",
-    phone: "เบอร์โทรศัพท์",
-    email: "อีเมล",
-    referralCode: "โค้ดแนะนำเพื่อน",
-    memberFallback: "สมาชิก",
-  },
 };
 
 const authLabelsByLocale: Record<Locale, AuthLabels> = {
   en: {
-    title: "Member Sign In",
-    subtitle:
-      "Sign in with phone OTP or email link. After verification, complete member registration to unlock rewards.",
-    phoneLabel: "Phone number (SMS OTP)",
+    startTitle: "Member Sign In",
+    startSubtitle: "Choose one option to continue.",
+    completeTitle: "Complete Member Registration",
+    completeSubtitle: "Enter your details to activate your member account.",
+    phoneLabel: "Mobile phone",
     phonePlaceholder: "+60123456789",
-    phoneSendButton: "Send OTP",
-    otpLabel: "Enter OTP code",
-    otpPlaceholder: "6-digit code",
-    otpVerifyButton: "Verify OTP",
-    otpSent: "OTP sent. Check your SMS and enter the code.",
-    otpVerified: "Phone verified. Complete your member registration below.",
-    emailLabel: "Email magic link",
+    phoneSendButton: "Continue with phone",
+    orText: "OR",
+    emailLabel: "Email",
     emailPlaceholder: "you@example.com",
-    emailButton: "Send sign in link",
-    emailSent: "Sign in link sent. Check your inbox to continue.",
-    profileTitle: "Complete Member Registration",
-    profileNotePhone:
-      "Your phone is verified and locked. Add remaining details to activate member rewards.",
-    profileNoteEmail:
-      "Your email is verified and locked. Please add your phone and remaining details.",
-    profileNoteFallback: "Complete your details below to activate member rewards.",
-    phoneLockedHint: "Verified phone number (locked)",
-    emailLockedHint: "Verified email (locked)",
+    emailSendButton: "Continue with email",
+    phoneSent: "OTP sent to your mobile.",
+    emailSent: "OTP sent to your email.",
     profileButton: "Save profile",
     profileSaved: "Profile saved. Redirecting to homepage...",
-    profileRequired:
-      "Please sign in first. Once signed in, complete your profile to continue.",
+    profileRequired: "Please sign in first to continue.",
     requiredFieldMessage: "Full name, date of birth, and phone number are required.",
     profileSaveError: "Unable to save profile now. Please try again.",
     signedInAs: "Signed in as",
     signOut: "Sign out",
     loadingMember: "Checking member session...",
+    phoneLockedHint: "Verified phone number",
+    emailLockedHint: "Verified email",
+    fullNamePlaceholder: "Full name",
+    dobLabel: "Date of birth",
     missingConfig:
       "Supabase environment keys are missing. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to enable auth.",
   },
   ms: {
-    title: "Log Masuk Ahli",
-    subtitle:
-      "Log masuk menggunakan OTP telefon atau pautan emel. Selepas pengesahan, lengkapkan pendaftaran ahli untuk ganjaran.",
-    phoneLabel: "Nombor telefon (OTP SMS)",
+    startTitle: "Log Masuk Ahli",
+    startSubtitle: "Pilih satu pilihan untuk teruskan.",
+    completeTitle: "Lengkapkan Pendaftaran Ahli",
+    completeSubtitle: "Isi maklumat anda untuk aktifkan akaun ahli.",
+    phoneLabel: "Nombor telefon",
     phonePlaceholder: "+60123456789",
-    phoneSendButton: "Hantar OTP",
-    otpLabel: "Masukkan kod OTP",
-    otpPlaceholder: "Kod 6 digit",
-    otpVerifyButton: "Sahkan OTP",
-    otpSent: "OTP telah dihantar. Semak SMS anda dan masukkan kod.",
-    otpVerified: "Telefon berjaya disahkan. Lengkapkan pendaftaran ahli di bawah.",
-    emailLabel: "Pautan ajaib emel",
+    phoneSendButton: "Teruskan dengan telefon",
+    orText: "ATAU",
+    emailLabel: "E-mel",
     emailPlaceholder: "anda@contoh.com",
-    emailButton: "Hantar pautan log masuk",
-    emailSent: "Pautan log masuk dihantar. Sila semak peti masuk emel anda.",
-    profileTitle: "Lengkapkan Pendaftaran Ahli",
-    profileNotePhone:
-      "Telefon anda telah disahkan dan dikunci. Isi maklumat selebihnya untuk aktifkan ganjaran.",
-    profileNoteEmail:
-      "Emel anda telah disahkan dan dikunci. Sila tambah nombor telefon dan maklumat lain.",
-    profileNoteFallback: "Lengkapkan maklumat anda di bawah untuk aktifkan ganjaran ahli.",
-    phoneLockedHint: "Nombor telefon disahkan (dikunci)",
-    emailLockedHint: "Emel disahkan (dikunci)",
+    emailSendButton: "Teruskan dengan e-mel",
+    phoneSent: "OTP telah dihantar ke telefon anda.",
+    emailSent: "OTP telah dihantar ke e-mel anda.",
     profileButton: "Simpan profil",
     profileSaved: "Profil berjaya disimpan. Mengalihkan ke laman utama...",
-    profileRequired:
-      "Sila log masuk dahulu. Selepas itu, lengkapkan profil untuk teruskan.",
+    profileRequired: "Sila log masuk dahulu untuk teruskan.",
     requiredFieldMessage: "Nama penuh, tarikh lahir, dan nombor telefon adalah wajib.",
     profileSaveError: "Profil tidak dapat disimpan sekarang. Cuba lagi.",
     signedInAs: "Log masuk sebagai",
     signOut: "Log keluar",
     loadingMember: "Sedang semak sesi ahli...",
+    phoneLockedHint: "Nombor telefon disahkan",
+    emailLockedHint: "E-mel disahkan",
+    fullNamePlaceholder: "Nama penuh",
+    dobLabel: "Tarikh lahir",
     missingConfig:
       "Kunci persekitaran Supabase belum ditetapkan. Tambah NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_ANON_KEY untuk aktifkan auth.",
   },
   th: {
-    title: "เข้าสู่ระบบสมาชิก",
-    subtitle:
-      "เข้าสู่ระบบด้วย OTP ทางโทรศัพท์หรือลิงก์อีเมล หลังยืนยันแล้วให้กรอกข้อมูลสมาชิกเพื่อปลดล็อกรางวัล",
-    phoneLabel: "หมายเลขโทรศัพท์ (SMS OTP)",
+    startTitle: "เข้าสู่ระบบสมาชิก",
+    startSubtitle: "เลือกหนึ่งวิธีเพื่อดำเนินการต่อ",
+    completeTitle: "กรอกข้อมูลสมาชิกให้ครบ",
+    completeSubtitle: "กรอกข้อมูลเพื่อเปิดใช้งานบัญชีสมาชิกของคุณ",
+    phoneLabel: "เบอร์มือถือ",
     phonePlaceholder: "+60123456789",
-    phoneSendButton: "ส่ง OTP",
-    otpLabel: "กรอกรหัส OTP",
-    otpPlaceholder: "รหัส 6 หลัก",
-    otpVerifyButton: "ยืนยัน OTP",
-    otpSent: "ส่ง OTP แล้ว กรุณาตรวจสอบ SMS และกรอกรหัส",
-    otpVerified: "ยืนยันเบอร์โทรแล้ว กรุณากรอกข้อมูลสมาชิกด้านล่าง",
-    emailLabel: "ลิงก์เข้าสู่ระบบทางอีเมล",
+    phoneSendButton: "เข้าสู่ระบบด้วยมือถือ",
+    orText: "หรือ",
+    emailLabel: "อีเมล",
     emailPlaceholder: "you@example.com",
-    emailButton: "ส่งลิงก์เข้าสู่ระบบ",
-    emailSent: "ส่งลิงก์เข้าสู่ระบบแล้ว กรุณาตรวจสอบอีเมลของคุณ",
-    profileTitle: "กรอกข้อมูลสมาชิกให้ครบ",
-    profileNotePhone:
-      "หมายเลขโทรศัพท์ของคุณยืนยันแล้วและล็อกไว้ กรุณากรอกข้อมูลที่เหลือเพื่อเปิดใช้งานรางวัล",
-    profileNoteEmail:
-      "อีเมลของคุณยืนยันแล้วและล็อกไว้ กรุณาเพิ่มหมายเลขโทรศัพท์และข้อมูลที่เหลือ",
-    profileNoteFallback: "กรอกข้อมูลด้านล่างให้ครบเพื่อเปิดใช้งานรางวัลสมาชิก",
-    phoneLockedHint: "หมายเลขโทรศัพท์ที่ยืนยันแล้ว (ล็อก)",
-    emailLockedHint: "อีเมลที่ยืนยันแล้ว (ล็อก)",
+    emailSendButton: "เข้าสู่ระบบด้วยอีเมล",
+    phoneSent: "ส่ง OTP ไปยังมือถือแล้ว",
+    emailSent: "ส่ง OTP ไปยังอีเมลแล้ว",
     profileButton: "บันทึกโปรไฟล์",
     profileSaved: "บันทึกโปรไฟล์แล้ว กำลังไปหน้าแรก...",
-    profileRequired: "กรุณาเข้าสู่ระบบก่อน จากนั้นกรอกโปรไฟล์เพื่อดำเนินการต่อ",
+    profileRequired: "กรุณาเข้าสู่ระบบก่อนเพื่อดำเนินการต่อ",
     requiredFieldMessage: "ต้องกรอกชื่อเต็ม วันเกิด และหมายเลขโทรศัพท์",
     profileSaveError: "ไม่สามารถบันทึกโปรไฟล์ได้ในตอนนี้ โปรดลองอีกครั้ง",
     signedInAs: "เข้าสู่ระบบเป็น",
     signOut: "ออกจากระบบ",
     loadingMember: "กำลังตรวจสอบเซสชันสมาชิก...",
+    phoneLockedHint: "ยืนยันเบอร์โทรแล้ว",
+    emailLockedHint: "ยืนยันอีเมลแล้ว",
+    fullNamePlaceholder: "ชื่อเต็ม",
+    dobLabel: "วันเกิด",
     missingConfig:
       "ยังไม่ได้ตั้งค่า Supabase keys โปรดเพิ่ม NEXT_PUBLIC_SUPABASE_URL และ NEXT_PUBLIC_SUPABASE_ANON_KEY เพื่อใช้งาน auth",
   },
 };
 
-export function AuthCard({ locale }: AuthCardProps) {
+const APP_CONTAINER_CLASS =
+  "rounded-[2rem] border border-border/70 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.05),transparent_55%),var(--surface)] p-5 shadow-[0_16px_45px_rgba(0,0,0,0.26)] sm:p-6";
+const APP_INPUT_CLASS =
+  "w-full rounded-2xl border border-border/80 bg-background px-4 py-3 text-base outline-none transition placeholder:text-muted-foreground focus:border-primary/70 focus:ring-2 focus:ring-primary/25";
+const APP_PRIMARY_BUTTON_CLASS =
+  "w-full rounded-2xl bg-primary px-4 py-3 text-base font-semibold text-white transition hover:bg-primary-hover disabled:opacity-60";
+const APP_SECONDARY_BUTTON_CLASS =
+  "w-full rounded-2xl border border-border px-4 py-3 text-base font-semibold transition hover:bg-muted disabled:opacity-60";
+
+export function AuthCard({ locale, mode = "start" }: AuthCardProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = useMemo(() => getSupabaseClient(), []);
   const [phoneInput, setPhoneInput] = useState("");
-  const [pendingPhone, setPendingPhone] = useState("");
-  const [otpInput, setOtpInput] = useState("");
   const [emailInput, setEmailInput] = useState("");
   const [profileForm, setProfileForm] = useState<MemberProfileFormInput>({
     fullName: "",
@@ -204,141 +162,113 @@ export function AuthCard({ locale }: AuthCardProps) {
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [sessionPhone, setSessionPhone] = useState<string | null>(null);
   const [profile, setProfile] = useState<MemberProfile | null>(null);
-  const [hydrating, setHydrating] = useState(Boolean(supabase));
+  const [hydrating, setHydrating] = useState(mode === "complete" && Boolean(supabase));
   const [status, setStatus] = useState("");
-  const [busyProvider, setBusyProvider] = useState<"phone" | "otp" | "email" | null>(null);
+  const [busyProvider, setBusyProvider] = useState<"phone" | "email" | null>(null);
   const [savingProfile, setSavingProfile] = useState(false);
 
   const labels = authLabelsByLocale[locale];
-  const profilePlaceholders = profilePlaceholdersByLocale[locale];
-  const referral =
-    typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search).get("ref")
-      : null;
+  const referral = searchParams.get("ref");
   const isSignedIn = Boolean(sessionUserId);
-
-  const origin =
-    typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-  const redirectTo = `${origin}/${locale}/member${
-    referral ? `?ref=${encodeURIComponent(referral)}` : ""
-  }`;
+  const isSignedInWithPhone = Boolean(sessionPhone?.trim());
+  const isSignedInWithEmail = Boolean(sessionEmail?.trim());
+  const resolvedProfilePhone = isSignedInWithPhone ? sessionPhone ?? "" : profileForm.phone;
+  const resolvedProfileEmail = isSignedInWithEmail ? sessionEmail ?? "" : profileForm.email;
 
   useEffect(() => {
-    if (!supabase) {
+    if (mode !== "complete" || !supabase) {
       return;
     }
 
     let active = true;
 
-    const applyProfileState = async (user: SessionMember | null) => {
+    const hydrateSessionAndProfile = async () => {
+      const { data, error } = await supabase.auth.getUser();
       if (!active) {
         return;
       }
 
+      if (error) {
+        setStatus(error.message);
+        setHydrating(false);
+        return;
+      }
+
+      const user = data.user;
       if (!user) {
-        setSessionUserId(null);
-        setSessionEmail(null);
-        setSessionPhone(null);
-        setProfile(null);
+        setHydrating(false);
+        router.replace(`/${locale}/login${referral ? `?ref=${encodeURIComponent(referral)}` : ""}`);
+        return;
+      }
+
+      const sessionMember: SessionMember = {
+        id: user.id,
+        email: user.email ?? null,
+        phone: user.phone ?? null,
+      };
+
+      setSessionUserId(sessionMember.id);
+      setSessionEmail(sessionMember.email);
+      setSessionPhone(sessionMember.phone);
+
+      const bootstrappedProfile = await bootstrapMemberProfile(supabase, sessionMember, referral);
+      if (!active) {
+        return;
+      }
+
+      if (bootstrappedProfile) {
+        setProfile(bootstrappedProfile);
+        setProfileForm({
+          fullName: bootstrappedProfile.full_name ?? "",
+          phone: bootstrappedProfile.phone ?? sessionMember.phone ?? "",
+          dateOfBirth: bootstrappedProfile.date_of_birth ?? "",
+          email: bootstrappedProfile.email ?? sessionMember.email ?? "",
+        });
+      } else {
         setProfileForm({
           fullName: "",
-          phone: "",
+          phone: sessionMember.phone ?? "",
           dateOfBirth: "",
-          email: "",
+          email: sessionMember.email ?? "",
         });
-        return;
       }
 
-      setSessionUserId(user.id);
-      setSessionEmail(user.email);
-      setSessionPhone(user.phone);
-
-      const bootstrapProfile = await bootstrapMemberProfile(supabase, user, referral);
-      if (!active) {
-        return;
-      }
-
-      if (!bootstrapProfile) {
-        setProfile(null);
-        return;
-      }
-
-      setProfile(bootstrapProfile);
-      setProfileForm({
-        fullName: bootstrapProfile.full_name ?? "",
-        phone: bootstrapProfile.phone ?? user.phone ?? "",
-        dateOfBirth: bootstrapProfile.date_of_birth ?? "",
-        email: bootstrapProfile.email ?? user.email ?? "",
-      });
+      setHydrating(false);
     };
 
-    supabase.auth
-      .getUser()
-      .then(({ data, error }) => {
-        if (error) {
-          setStatus(error.message);
-          return;
-        }
-        return applyProfileState(
-          data.user
-            ? {
-                id: data.user.id,
-                email: data.user.email ?? null,
-                phone: data.user.phone ?? null,
-              }
-            : null,
-        );
-      })
-      .finally(() => {
-        if (active) {
-          setHydrating(false);
-        }
-      });
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      void applyProfileState(
-        session?.user
-          ? {
-              id: session.user.id,
-              email: session.user.email ?? null,
-              phone: session.user.phone ?? null,
-            }
-          : null,
-      );
-      setHydrating(false);
-    });
+    void hydrateSessionAndProfile();
 
     return () => {
       active = false;
-      authListener.subscription.unsubscribe();
     };
-  }, [referral, supabase]);
+  }, [locale, mode, referral, router, supabase]);
 
-  const normalizedPhoneInput = phoneInput.trim();
-  const isSignedInWithPhone = Boolean(sessionPhone?.trim());
-  const isSignedInWithEmail = Boolean(sessionEmail?.trim());
-  const resolvedProfilePhone = isSignedInWithPhone ? sessionPhone ?? "" : profileForm.phone;
-  const resolvedProfileEmail = isSignedInWithEmail ? sessionEmail ?? "" : profileForm.email;
-  const profileNote = isSignedInWithPhone
-    ? labels.profileNotePhone
-    : isSignedInWithEmail
-      ? labels.profileNoteEmail
-      : labels.profileNoteFallback;
+  const goToVerifyPage = (method: "phone" | "email", value: string) => {
+    const params = new URLSearchParams({
+      method,
+      value,
+    });
+    if (referral) {
+      params.set("ref", referral);
+    }
+    router.push(`/${locale}/login/verify?${params.toString()}`);
+  };
 
-  const handleSendPhoneOtp = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSendPhoneOtp = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!supabase) {
       setStatus(labels.missingConfig);
       return;
     }
-    if (!normalizedPhoneInput) {
+    const normalizedPhone = phoneInput.trim();
+    if (!normalizedPhone) {
       return;
     }
 
     setStatus("");
     setBusyProvider("phone");
     const { error } = await supabase.auth.signInWithOtp({
-      phone: normalizedPhoneInput,
+      phone: normalizedPhone,
     });
 
     if (error) {
@@ -347,55 +277,28 @@ export function AuthCard({ locale }: AuthCardProps) {
       return;
     }
 
-    setPendingPhone(normalizedPhoneInput);
-    setOtpInput("");
-    setStatus(labels.otpSent);
+    setStatus(labels.phoneSent);
     setBusyProvider(null);
+    goToVerifyPage("phone", normalizedPhone);
   };
 
-  const handleVerifyPhoneOtp = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSendEmailOtp = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!supabase) {
       setStatus(labels.missingConfig);
       return;
     }
-    if (!pendingPhone || !otpInput.trim()) {
-      return;
-    }
-
-    setStatus("");
-    setBusyProvider("otp");
-    const { error } = await supabase.auth.verifyOtp({
-      phone: pendingPhone,
-      token: otpInput.trim(),
-      type: "sms",
-    });
-
-    if (error) {
-      setStatus(error.message);
-      setBusyProvider(null);
-      return;
-    }
-
-    setPendingPhone("");
-    setOtpInput("");
-    setStatus(labels.otpVerified);
-    setBusyProvider(null);
-  };
-
-  const handleEmailMagicLink = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!supabase) {
-      setStatus(labels.missingConfig);
+    const normalizedEmail = emailInput.trim().toLowerCase();
+    if (!normalizedEmail) {
       return;
     }
 
     setStatus("");
     setBusyProvider("email");
     const { error } = await supabase.auth.signInWithOtp({
-      email: emailInput.trim(),
+      email: normalizedEmail,
       options: {
-        emailRedirectTo: redirectTo,
+        shouldCreateUser: true,
       },
     });
 
@@ -407,9 +310,10 @@ export function AuthCard({ locale }: AuthCardProps) {
 
     setStatus(labels.emailSent);
     setBusyProvider(null);
+    goToVerifyPage("email", normalizedEmail);
   };
 
-  const handleSaveProfile = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSaveProfile = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!supabase) {
       setStatus(labels.missingConfig);
@@ -420,9 +324,11 @@ export function AuthCard({ locale }: AuthCardProps) {
       return;
     }
 
-    const nextPhone = resolvedProfilePhone.trim();
     const nextFullName = profileForm.fullName.trim();
     const nextDateOfBirth = profileForm.dateOfBirth;
+    const nextPhone = resolvedProfilePhone.trim();
+    const nextEmail = resolvedProfileEmail.trim();
+
     if (!nextFullName || !nextDateOfBirth || !nextPhone) {
       setStatus(labels.requiredFieldMessage);
       return;
@@ -432,9 +338,9 @@ export function AuthCard({ locale }: AuthCardProps) {
     setSavingProfile(true);
     const savedProfile = await saveMemberProfileForm(supabase, sessionUserId, {
       fullName: nextFullName,
-      dateOfBirth: nextDateOfBirth,
       phone: nextPhone,
-      email: resolvedProfileEmail.trim(),
+      dateOfBirth: nextDateOfBirth,
+      email: nextEmail,
     });
     setSavingProfile(false);
 
@@ -448,8 +354,9 @@ export function AuthCard({ locale }: AuthCardProps) {
       fullName: savedProfile.full_name ?? "",
       phone: savedProfile.phone ?? "",
       dateOfBirth: savedProfile.date_of_birth ?? "",
-      email: savedProfile.email ?? sessionEmail ?? "",
+      email: savedProfile.email ?? "",
     });
+
     setStatus(labels.profileSaved);
     router.push(`/${locale}`);
     router.refresh();
@@ -460,135 +367,59 @@ export function AuthCard({ locale }: AuthCardProps) {
       return;
     }
     await supabase.auth.signOut();
-    setStatus("");
+    router.replace(`/${locale}/login${referral ? `?ref=${encodeURIComponent(referral)}` : ""}`);
   };
 
-  return (
-    <div className="space-y-6 rounded-3xl border border-border bg-surface p-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-foreground">{labels.title}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{labels.subtitle}</p>
-      </div>
-
-      {!isSignedIn ? (
-        <div className="space-y-4">
-          <form onSubmit={handleSendPhoneOtp} className="space-y-2 rounded-2xl border border-border p-4">
-            <label className="block text-sm font-medium text-foreground">{labels.phoneLabel}</label>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <input
-                required
-                type="tel"
-                value={phoneInput}
-                onChange={(event) => setPhoneInput(event.target.value)}
-                placeholder={labels.phonePlaceholder}
-                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
-              />
-              <button
-                type="submit"
-                className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover disabled:opacity-60"
-                disabled={busyProvider !== null}
-              >
-                {busyProvider === "phone" ? "..." : labels.phoneSendButton}
-              </button>
-            </div>
-          </form>
-
-          {pendingPhone ? (
-            <form
-              onSubmit={handleVerifyPhoneOtp}
-              className="space-y-2 rounded-2xl border border-border p-4"
-            >
-              <label className="block text-sm font-medium text-foreground">{labels.otpLabel}</label>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <input
-                  required
-                  inputMode="numeric"
-                  value={otpInput}
-                  onChange={(event) => setOtpInput(event.target.value)}
-                  placeholder={labels.otpPlaceholder}
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
-                />
-                <button
-                  type="submit"
-                  className="rounded-xl bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-60"
-                  disabled={busyProvider !== null}
-                >
-                  {busyProvider === "otp" ? "..." : labels.otpVerifyButton}
-                </button>
-              </div>
-            </form>
-          ) : null}
-
-          <form onSubmit={handleEmailMagicLink} className="space-y-2 rounded-2xl border border-border p-4">
-            <label className="block text-sm font-medium text-foreground">{labels.emailLabel}</label>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <input
-                required
-                type="email"
-                value={emailInput}
-                onChange={(event) => setEmailInput(event.target.value)}
-                placeholder={labels.emailPlaceholder}
-                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
-              />
-              <button
-                type="submit"
-                className="rounded-xl border border-border px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-60"
-                disabled={busyProvider !== null}
-              >
-                {busyProvider === "email" ? "..." : labels.emailButton}
-              </button>
-            </div>
-          </form>
+  if (mode === "complete") {
+    return (
+      <div className={`${APP_CONTAINER_CLASS} space-y-5`}>
+        <div>
+          <h2 className="text-3xl font-semibold text-foreground">{labels.completeTitle}</h2>
+          <p className="mt-2 text-base text-muted-foreground">{labels.completeSubtitle}</p>
         </div>
-      ) : null}
 
-      {status ? (
-        <p className="rounded-xl bg-muted px-3 py-2 text-sm text-foreground">{status}</p>
-      ) : null}
-
-      <div className="rounded-2xl border border-border bg-background p-4">
-        <h3 className="text-base font-semibold">{labels.profileTitle}</h3>
-        <p className="mt-1 text-sm text-muted-foreground">{profileNote}</p>
         {hydrating ? (
-          <p className="mt-3 text-sm text-muted-foreground">{labels.loadingMember}</p>
+          <p className="rounded-xl bg-muted px-3 py-2 text-sm text-foreground">{labels.loadingMember}</p>
         ) : (
           <>
             {isSignedIn ? (
-              <p className="mt-3 text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {labels.signedInAs}:{" "}
                 <span className="font-medium text-foreground">
-                  {sessionEmail ?? profilePlaceholders.memberFallback}
+                  {sessionEmail ?? sessionPhone ?? "member"}
                 </span>
               </p>
             ) : null}
-            <form onSubmit={handleSaveProfile} className="mt-3 space-y-3">
-              <div className="grid gap-2 sm:grid-cols-2">
-                <input
-                  required
-                  value={profileForm.fullName}
-                  onChange={(event) =>
-                    setProfileForm((current) => ({
-                      ...current,
-                      fullName: event.target.value,
-                    }))
-                  }
-                  placeholder={profilePlaceholders.fullName}
-                  className="rounded-xl border border-border bg-surface px-3 py-2 text-sm"
-                  disabled={!isSignedIn || savingProfile}
-                />
-                <input
-                  required
-                  value={resolvedProfilePhone}
-                  onChange={(event) =>
-                    setProfileForm((current) => ({
-                      ...current,
-                      phone: event.target.value,
-                    }))
-                  }
-                  placeholder={isSignedInWithPhone ? labels.phoneLockedHint : profilePlaceholders.phone}
-                  className="rounded-xl border border-border bg-surface px-3 py-2 text-sm"
-                  disabled={!isSignedIn || savingProfile || isSignedInWithPhone}
-                />
+            <form onSubmit={handleSaveProfile} className="space-y-3">
+              <input
+                required
+                value={profileForm.fullName}
+                onChange={(event) =>
+                  setProfileForm((current) => ({
+                    ...current,
+                    fullName: event.target.value,
+                  }))
+                }
+                placeholder={labels.fullNamePlaceholder}
+                className={APP_INPUT_CLASS}
+                disabled={!isSignedIn || savingProfile}
+              />
+              <input
+                required
+                type="tel"
+                value={resolvedProfilePhone}
+                onChange={(event) =>
+                  setProfileForm((current) => ({
+                    ...current,
+                    phone: event.target.value,
+                  }))
+                }
+                placeholder={isSignedInWithPhone ? labels.phoneLockedHint : labels.phoneLabel}
+                className={APP_INPUT_CLASS}
+                disabled={!isSignedIn || savingProfile || isSignedInWithPhone}
+              />
+              <div>
+                <label className="mb-2 block text-sm font-medium text-muted-foreground">{labels.dobLabel}</label>
                 <input
                   required
                   type="date"
@@ -599,52 +430,107 @@ export function AuthCard({ locale }: AuthCardProps) {
                       dateOfBirth: event.target.value,
                     }))
                   }
-                  className="rounded-xl border border-border bg-surface px-3 py-2 text-sm"
+                  className={APP_INPUT_CLASS}
                   disabled={!isSignedIn || savingProfile}
                 />
-                <input
-                  required={isSignedInWithEmail}
-                  type="email"
-                  value={resolvedProfileEmail}
-                  onChange={(event) =>
-                    setProfileForm((current) => ({
-                      ...current,
-                      email: event.target.value,
-                    }))
-                  }
-                  placeholder={isSignedInWithEmail ? labels.emailLockedHint : profilePlaceholders.email}
-                  className="rounded-xl border border-border bg-surface px-3 py-2 text-sm"
-                  disabled={!isSignedIn || savingProfile || isSignedInWithEmail}
-                />
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="submit"
-                  className="rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-60"
-                  disabled={!isSignedIn || savingProfile}
-                >
-                  {savingProfile ? "Saving..." : labels.profileButton}
-                </button>
-                {isSignedIn ? (
-                  <button
-                    type="button"
-                    onClick={handleSignOut}
-                    className="rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
-                  >
-                    {labels.signOut}
-                  </button>
-                ) : null}
-              </div>
+              <input
+                type="email"
+                value={resolvedProfileEmail}
+                onChange={(event) =>
+                  setProfileForm((current) => ({
+                    ...current,
+                    email: event.target.value,
+                  }))
+                }
+                placeholder={isSignedInWithEmail ? labels.emailLockedHint : labels.emailLabel}
+                className={APP_INPUT_CLASS}
+                disabled={!isSignedIn || savingProfile || isSignedInWithEmail}
+              />
+              <button
+                type="submit"
+                className={APP_PRIMARY_BUTTON_CLASS}
+                disabled={!isSignedIn || savingProfile}
+              >
+                {savingProfile ? "..." : labels.profileButton}
+              </button>
             </form>
-            {profile?.referral_code && hasRequiredMemberDetails(profile) ? (
-              <p className="mt-3 text-xs text-muted-foreground">
-                {profilePlaceholders.referralCode}:{" "}
-                <span className="font-semibold text-foreground">{profile.referral_code}</span>
+
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="w-full rounded-2xl border border-border px-4 py-3 text-base font-semibold transition hover:bg-muted"
+            >
+              {labels.signOut}
+            </button>
+
+            {profile?.referral_code ? (
+              <p className="text-xs text-muted-foreground">
+                Referral code: <span className="font-semibold text-foreground">{profile.referral_code}</span>
               </p>
             ) : null}
           </>
         )}
+
+        {status ? <p className="rounded-xl bg-muted px-3 py-2 text-sm text-foreground">{status}</p> : null}
+
+        <p className="text-xs text-muted-foreground">
+          <Link href={`/${locale}/privacy`} className="underline">
+            Privacy
+          </Link>{" "}
+          /{" "}
+          <Link href={`/${locale}/terms`} className="underline">
+            Terms
+          </Link>
+        </p>
       </div>
+    );
+  }
+
+  return (
+    <div className={`${APP_CONTAINER_CLASS} space-y-5`}>
+      <div>
+        <h2 className="text-3xl font-semibold text-foreground">{labels.startTitle}</h2>
+        <p className="mt-2 text-base text-muted-foreground">{labels.startSubtitle}</p>
+      </div>
+
+      <form onSubmit={handleSendPhoneOtp} className="space-y-3">
+        <label className="block text-lg font-semibold text-foreground">{labels.phoneLabel}</label>
+        <input
+          required
+          type="tel"
+          value={phoneInput}
+          onChange={(event) => setPhoneInput(event.target.value)}
+          placeholder={labels.phonePlaceholder}
+          className={APP_INPUT_CLASS}
+        />
+        <button type="submit" className={APP_PRIMARY_BUTTON_CLASS} disabled={busyProvider !== null}>
+          {busyProvider === "phone" ? "..." : labels.phoneSendButton}
+        </button>
+      </form>
+
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-border/80" />
+        <span className="text-sm font-semibold tracking-wider text-muted-foreground">{labels.orText}</span>
+        <div className="h-px flex-1 bg-border/80" />
+      </div>
+
+      <form onSubmit={handleSendEmailOtp} className="space-y-3">
+        <label className="block text-lg font-semibold text-foreground">{labels.emailLabel}</label>
+        <input
+          required
+          type="email"
+          value={emailInput}
+          onChange={(event) => setEmailInput(event.target.value)}
+          placeholder={labels.emailPlaceholder}
+          className={APP_INPUT_CLASS}
+        />
+        <button type="submit" className={APP_SECONDARY_BUTTON_CLASS} disabled={busyProvider !== null}>
+          {busyProvider === "email" ? "..." : labels.emailSendButton}
+        </button>
+      </form>
+
+      {status ? <p className="rounded-xl bg-muted px-3 py-2 text-sm text-foreground">{status}</p> : null}
 
       <p className="text-xs text-muted-foreground">
         Supabase Auth must have Phone and Email providers enabled.

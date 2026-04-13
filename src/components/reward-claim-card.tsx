@@ -149,10 +149,10 @@ export function RewardClaimCard({ locale, t }: RewardClaimCardProps) {
       </div>
 
       <Link
-        href={`/${locale}/rewards`}
+        href={`/${locale}/login/complete`}
         className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
       >
-        Back to rewards
+        Complete member registration
       </Link>
     </section>
   );

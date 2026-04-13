@@ -1,13 +1,9 @@
-import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { isSupportedLocale, type Locale } from "@/lib/i18n";
-import { AuthCard } from "@/components/auth-card";
+import { VerifyOtpCard } from "@/components/verify-otp-card";
 
-function LoginPageContent({ locale }: { locale: Locale }) {
-  return <AuthCard locale={locale} mode="start" />;
-}
-
-export default async function LoginPage({
+export default async function VerifyOtpPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -21,7 +17,7 @@ export default async function LoginPage({
 
   return (
     <Suspense fallback={null}>
-      <LoginPageContent locale={activeLocale} />
+      <VerifyOtpCard locale={activeLocale} />
     </Suspense>
   );
 }
